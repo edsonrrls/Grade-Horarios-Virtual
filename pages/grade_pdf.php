@@ -12,7 +12,9 @@ include("conexao.php");
     $consulta = "SELECT * FROM grade JOIN professor on grade.cod_prof = professor.cod_prof WHERE grade.cod_prof ='$cod_prof' AND grade.cod_grade = '$cod_grade'";
     $con = $mysqli->query($consulta) or die($mysqli->error);
 
-    $consultaDisc = "SELECT DISTINCT nome_disc, curso_disc FROM disciplina JOIN hora_aula WHERE hora_aula.cod_disc = disciplina.cod_disc";
+    $consultaDisc = "SELECT DISTINCT d.nome_disc, d.curso_disc, h.cod_grade FROM disciplina AS d JOIN hora_aula AS h 
+        WHERE h.cod_disc = d.cod_disc
+        AND h.cod_grade = $cod_grade";
     $condisc = $mysqli->query($consultaDisc) or die($mysqli->error);
 
 
@@ -29,6 +31,12 @@ include("conexao.php");
             AND h.dia_semana = 'Segunda-feira' 
             AND h.cod_grade = $cod_grade ORDER BY ho.hora_inicio";
     $con2 = $mysqli->query($consulta2) or die($mysqli->error);
+
+    $consultacont = "SELECT COUNT(cod_hora_aula) AS total FROM hora_aula
+            WHERE cod_grade = $cod_grade";
+    $concont = $mysqli->query($consultacont) or die($mysqli->error);
+    $total = $concont;
+
 
     $consulta3 = "SELECT h.cod_hora_aula, h.cod_grade, h.cod_disc, h.dia_semana, g.cod_prof, p.cod_prof, d.nome_disc, ho.cod_horario, ho.hora_inicio, ho.hora_termino, ho.turno FROM hora_aula AS h JOIN grade AS g ON h.cod_grade = g.cod_grade JOIN professor AS p ON p.cod_prof = g.cod_prof JOIN disciplina AS d ON d.cod_disc = h.cod_disc JOIN horario AS ho ON ho.cod_horario = h.cod_horario
             WHERE p.cod_prof = $cod_prof 
@@ -59,6 +67,10 @@ include("conexao.php");
             AND h.dia_semana = 'Sabado' 
             AND h.cod_grade = $cod_grade ORDER BY ho.hora_inicio";
     $consab = $mysqli->query($consultasab) or die($mysqli->error);
+
+
+
+
 
 
 class PDF extends FPDF
@@ -116,10 +128,11 @@ $pdf->SetFont('Arial','',10);
         $pdf->Cell(50,8,utf8_decode('ASSOCIADO I'),1,1,'C');
         $pdf->Cell(25,8,utf8_decode('REGIME'),1,0,'C');
         $pdf->Cell(80,8,utf8_decode($dado["regime"]),1,0,'C');
-        $pdf->Cell(35,8,utf8_decode(''),1,0,'C');
+        $pdf->Cell(35,8,utf8_decode($dado["categoria"]),1,0,'C');
         $pdf->Cell(50,8,utf8_decode(''),1,1,'C');
     }
     
+$pdf->Cell(1,2,utf8_decode(''),0,1,'C');
 
 $pdf->SetFont('Arial','B',16);
         $pdf->Cell(10,8,utf8_decode('B'),1,0,'C');
@@ -133,8 +146,12 @@ $pdf->SetFont('Arial','',10);
         $pdf->Cell(90,5,utf8_decode($dado["curso_disc"]),1,1,'C');
     }
 
+$pdf->Cell(1,2,utf8_decode(''),0,1,'C');
+
 $pdf->SetFont('Arial','B',11); 
+
         $pdf->Cell(190,8,utf8_decode('Segunda-Feira'),1,1,'C');
+
 
 $pdf->SetFont('Arial','',8);
         while ($dado = $con2->fetch_array())
@@ -210,6 +227,102 @@ $pdf->SetFont('Arial','',8);
         $pdf->Cell(15,5,utf8_decode($dado["hora_termino"]),1,0,'C');
         $pdf->Cell(120,5,utf8_decode($dado["nome_disc"]),1,1,'L');
     }
+
+$pdf->Cell(1,2,utf8_decode(''),0,1,'C');
+
+$pdf->SetFont('Arial','B',16);
+        $pdf->Cell(10,8,utf8_decode('C'),1,0,'C');
+$pdf->SetFont('Arial','',10);
+        $pdf->Cell(60,8,utf8_decode('HAE - RJI - JORNADA'),1,0,'C');
+$pdf->SetFont('Arial','',8);
+        $pdf->Cell(30,8,utf8_decode('Nº Horas Semanais'),1,0,'C');
+        $pdf->Cell(1,8,utf8_decode(''),0,0,'C');
+$pdf->SetFont('Arial','B',16);
+        $pdf->Cell(10,8,utf8_decode('D'),1,0,'C');
+$pdf->SetFont('Arial','',10);
+        $pdf->Cell(79,8,utf8_decode('QUADRO RESUMO'),1,1,'C');
+
+
+
+$pdf->SetFont('Arial','',9);
+        $pdf->Cell(70,5,utf8_decode('1. Diretor e Vice-Diretor da Faculdade'),1,0,'L');
+
+        $pdf->Cell(30,5,utf8_decode(''),1,0,'C');    
+        $pdf->Cell(1,5,utf8_decode(''),0,0,'C');         
+        $pdf->Cell(50,5,utf8_decode('ATIVIDADES'),1,0,'C');
+        $pdf->Cell(19,5,utf8_decode('Nº Semanal'),1,0,'C');
+        $pdf->Cell(20,5,utf8_decode('Nº Mensal'),1,1,'C');
+
+        $pdf->Cell(70,5,utf8_decode('2. Acessoria ao CEETPS'),1,0,'L');
+        $pdf->Cell(30,5,utf8_decode(''),1,0,'C');    
+        $pdf->Cell(1,5,utf8_decode(''),0,0,'C');         
+        $pdf->Cell(50,5,utf8_decode('Hora - Aula'),1,0,'C');
+        $pdf->Cell(19,5,utf8_decode(''),1,0,'C');
+        $pdf->Cell(20,5,utf8_decode(''),1,1,'C');
+
+        $pdf->Cell(70,5,utf8_decode('3. Acessoria à Diretoria da Fatec'),1,0,'L');
+        $pdf->Cell(30,5,utf8_decode(''),1,0,'C');    
+        $pdf->Cell(1,5,utf8_decode(''),0,0,'C');         
+        $pdf->Cell(50,5,utf8_decode('Hora - Atividade'),1,0,'C');
+        $pdf->Cell(19,5,utf8_decode(''),1,0,'C');
+        $pdf->Cell(20,5,utf8_decode(''),1,1,'C');
+
+        $pdf->Cell(70,5,utf8_decode('3. Acessoria à Diretoria da Fatec'),1,0,'L');
+        $pdf->Cell(30,5,utf8_decode(''),1,0,'C');    
+        $pdf->Cell(1,5,utf8_decode(''),0,0,'C');         
+        $pdf->Cell(50,5,utf8_decode('H.A.E.'),1,0,'C');
+        $pdf->Cell(19,5,utf8_decode(''),1,0,'C');
+        $pdf->Cell(20,5,utf8_decode(''),1,1,'C');
+
+        $pdf->Cell(70,5,utf8_decode('4. Chefia de Departamento'),1,0,'L');
+        $pdf->Cell(30,5,utf8_decode(''),1,0,'C');    
+        $pdf->Cell(1,5,utf8_decode(''),0,0,'C');         
+        $pdf->Cell(50,5,utf8_decode('R.J.I.'),1,0,'C');
+        $pdf->Cell(19,5,utf8_decode(''),1,0,'C');
+        $pdf->Cell(20,5,utf8_decode(''),1,1,'C');
+
+        $pdf->Cell(70,5,utf8_decode('5. Responsabilidade por Curso em Implantação'),1,0,'L');
+        $pdf->Cell(30,5,utf8_decode(''),1,0,'C');    
+        $pdf->Cell(1,5,utf8_decode(''),0,0,'C');         
+        $pdf->Cell(50,5,utf8_decode('Jornada'),1,0,'C');
+        $pdf->Cell(19,5,utf8_decode(''),1,0,'C');
+        $pdf->Cell(20,5,utf8_decode(''),1,1,'C');
+
+        $pdf->Cell(70,5,utf8_decode('6. Responsabilidade por Disciplina (2ª a 6ª feira)'),1,0,'L');
+        $pdf->Cell(30,5,utf8_decode(''),1,0,'C');    
+        $pdf->Cell(1,5,utf8_decode(''),0,0,'C');         
+        $pdf->Cell(50,5,utf8_decode('TOTAL GERAL (HORAS)'),1,0,'C');
+        $pdf->Cell(19,5,utf8_decode(''),1,0,'C');
+        $pdf->Cell(20,5,utf8_decode(''),1,1,'C');
+
+        $pdf->Cell(70,5,utf8_decode('7. Coordenação de Oficinas e Laboratórios'),1,0,'L');
+        $pdf->Cell(30,5,utf8_decode(''),1,1,'C');
+        $pdf->Cell(70,5,utf8_decode('8. Grupo de Estudos (2ª a 6ª feira)'),1,0,'L');
+        $pdf->Cell(30,5,utf8_decode(''),1,1,'C');
+        $pdf->Cell(70,5,utf8_decode('9. Pesquisa Individual (2ª a 6ª feira)'),1,0,'L');
+        $pdf->Cell(30,5,utf8_decode(''),1,1,'C');
+        $pdf->Cell(70,5,utf8_decode('10. Outros (2ª a 6ª feira)'),1,0,'L');
+        $pdf->Cell(30,5,utf8_decode(''),1,1,'C');
+        $pdf->Cell(1,5,utf8_decode(''),0,1,'L');
+
+
+$pdf->SetFont('Arial','',12);
+        $pdf->Cell(1,5,utf8_decode(''),0,1,'L');
+        $pdf->Cell(190,6,utf8_decode('Lembretes:'),1,1,'L');
+$pdf->SetFont('Arial','',9);
+        $pdf->Cell(190,5,utf8_decode('a) Observe as exigências legais: no máximo, 8 horas diárias de trabalho; intervalo de uma hora entre um expediente e outro e, no'),0,1,'L');
+        $pdf->Cell(190,5,utf8_decode('máximo, 6 horas a cada expediente no diurno e 5 horas no noturno (sem ultrapassar 8 horas por dia).  '),0,1,'L');
+
+        $pdf->Cell(1,1,utf8_decode(''),0,1,'L');
+
+        $pdf->Cell(190,5,utf8_decode('b) Observe as normas em vigor quanto ao cumprimento de horas de RJI ou HAE em determinados períodos, limitação de número de'),0,1,'L');
+        $pdf->Cell(190,5,utf8_decode('horas, bem como exigências de exercício de determinadas atividades somente entre segunda e sexta-feria. '),0,1,'L');
+
+$pdf->SetFont('Arial','',12);
+        $pdf->Cell(1,5,utf8_decode(''),0,1,'L');
+        $pdf->Cell(190,6,utf8_decode('Observações:'),1,1,'L');
+        $pdf->Cell(190,50,utf8_decode(''),1,1,'L');
+
 
 
 

@@ -1,8 +1,24 @@
 <?php
     include("conexao.php");
 
-    $consulta = "SELECT * FROM prof_disc JOIN professor JOIN disciplina on prof_disc.cod_prof = professor.cod_prof and prof_disc.cod_disc = disciplina.cod_disc";
+    //INFORMAÇÕES DO CABEÇALHO DO DOCUMENTO********************************
+
+    $consulta = "SELECT * FROM grade JOIN professor on grade.cod_prof = professor.cod_prof";
     $con = $mysqli->query($consulta) or die($mysqli->error);
+
+    $consultaDisc = "SELECT DISTINCT nome_disc, curso_disc FROM disciplina JOIN hora_aula WHERE hora_aula.cod_disc = disciplina.cod_disc";
+    $condisc = $mysqli->query($consultaDisc) or die($mysqli->error);
+
+
+//FIM DO CABEÇALHO*****************************************************
+
+//INICIO DO CORPO DA PÁGINA********************************************
+
+
+    $consulta2 = "SELECT h.cod_hora_aula, h.cod_grade, h.cod_disc, h.dia_semana, g.cod_prof, p.cod_prof, p.nome_prof, d.nome_disc, ho.cod_horario, ho.hora_inicio, ho.hora_termino, ho.turno FROM hora_aula AS h JOIN grade AS g ON h.cod_grade = g.cod_grade JOIN professor AS p ON p.cod_prof = g.cod_prof JOIN disciplina AS d ON d.cod_disc = h.cod_disc JOIN horario AS ho ON ho.cod_horario = h.cod_horario 
+            
+            ORDER BY h.cod_hora_aula";
+    $con2 = $mysqli->query($consulta2) or die($mysqli->error);
 
 ?>
 
@@ -19,7 +35,7 @@
 
 
 
-    <title>Listagem de Professores</title>
+    <title>Listagem de Hora - Aulas</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -47,7 +63,7 @@
     <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]--> 
+    <![endif]-->   
 
     <style type="text/css"> 
     a {
@@ -91,7 +107,7 @@
     .sidebar .sidebar-search {
         padding: 0px;
     }
-    </style>   
+    </style> 
 
 </head>
 
@@ -214,7 +230,7 @@
         <div id="page-wrapper">
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">PROFESSORES - DISCIPLINAS</h1>
+                    <h1 class="page-header">HORAS - AULAS</h1>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
@@ -223,30 +239,36 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Listagem de professores por disciplinas
+                            Listagem de horas - aulas cadastradas
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
                             <table width="100%" class="table table-striped table-bordered table-hover" id="professor">
                                 <thead>
                                     <tr>
-                                        <th>Código</th>
-                                        <th>Nome do Professor</th>
-                                        <th>Nome da Disciplina</th>
+                                        <th>Grade</th>
+                                        <th>Dia</th>
+                                        <th>Turno</th> 
+                                        <th>Início - Termino</th>                                        
+                                        <th>Disciplina</th>                                       
                                         <th></th>                                       
                                         
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <?php while ($dado = $con->fetch_array()){ ?>
+                                <?php while ($dado = $con2->fetch_array()){ ?>
                                     <tr class="odd gradeX">
-                                        <td><?php echo $dado["cod_prof_disc"]; ?></td>
-                                        <td><?php echo $dado["nome_prof"]; ?></td>
-                                        <td><?php echo $dado["nome_disc"]; ?></td> 
+                                        
+                                        <td><center><?php echo $dado["cod_grade"];?> - <?php echo $dado["nome_prof"];?></center></td>
+                                        <td><center><?php echo $dado["dia_semana"]; ?></center></td> 
+                                        <td><center><?php echo $dado["turno"]; ?></center></td> 
+                                        <td><center><?php echo $dado["hora_inicio"]; ?> / <?php echo $dado["hora_termino"]; ?></center></td>                                        
+                                        <td><center><?php echo $dado["nome_disc"]; ?></center></td>                                         
                                         <td>
                                         <center>
-                                        <button type="button" class="btn btn-default btn-circle" data-toggle="modal" data-target="#delete" data-whatevercod="<?php echo $dado["cod_prof_disc"]; ?>" data-whatevernome="<?php echo $dado["nome_prof"]; ?>" data-whateverdisc="<?php echo $dado["nome_disc"]; ?>">
-                                                    <i class="fa fa-times"></i>
+                                        
+                                        <button type="button" class="btn btn-default btn-circle" data-toggle="modal" data-target="#delete" data-whatevercod="<?php echo $dado["cod_hora_aula"]; ?>">
+                                            <i class="fa fa-times"></i>
                                         </button>
                                         </center>
                                         </td> 
@@ -263,16 +285,16 @@
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
-            <!-- /.row -->            
+            <!-- /.row -->
 
-            <!-- Modalx -->
-            <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <!-- Modal -->
+            <div class="modal fade" id="info" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 
                 <div class="modal-dialog">
                 <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="myModalLabel">Remover - Professor / Disciplina:</h4>
+                        <h4 class="modal-title" id="myModalLabel">Editar - Professor:</h4>
                 </div>
 
                 <div class="modal-body">
@@ -285,18 +307,79 @@
                     <div class="panel-body">
                         <div class="row">
                         <div class="col-lg-12">
-                            <form role="form" method="POST" action="processa_exc_prof_disc.php">
+                            <form role="form" method="POST" action="processa_edit_prof.php">
+                                    
+                                <input type="hidden" class="form-control" required="" name="cod" id="recipientcod">
+                                
+                                <div class="form-group">                                    
+                                    <label>Nome:</label>
+                                    <input class="form-control" required="" name="nome" id="recipientnome">
+                                    <p class="help-block">Digite o nome completo.</p>
+                                </div>
+                                <div class="form-group">
+                                    <label>Telefone:</label>
+                                    <input class="form-control" placeholder="Somente números" required="" name="fone" id="recipientfone">
+                                    <p class="help-block">Digite o número 9 antes do número de telefone.</p>
+                                </div>
+                                <div class="form-group">
+                                <label>E-Mail:</label>
+                                <input class="form-control" placeholder="email@examplo.com" required="" name="email" id="recipientemail">
+                                <p class="form-control-static">Digite um e-mail existente.</p>
+                                </div> 
+
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn btn-outline btn-primary">Atualizar</button>                                    
+                                    <button type="button" class="btn btn btn-outline btn-danger" data-dismiss="modal">Cancelar</button>                                    
+                                </div> 
+                            </form>
+                        </div>
+
+                        </div>
+                        <!-- /.row (nested) -->
+                    </div>
+                    <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                    </div>
+                    <!-- /.col-lg-12 -->
+                </div>
+                <!-- /.row -->
+
+                </div>
+
+                </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
+            </div>
+            <!-- /.modal -->
+
+            <!-- Modalx -->
+            <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+                <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Remover - Hora / Aula:</h4>
+                </div>
+
+                <div class="modal-body">
+                            
+                            <!-- /.row -->
+                <div class="row">
+                    <div class="col-lg-12">
+                    <div class="panel panel-default">
+
+                    <div class="panel-body">
+                        <div class="row">
+                        <div class="col-lg-12">
+                            <form role="form" method="POST" action="processa_exc_hora_aula.php">
 
                             <input type="hidden" class="form-control" required="" name="cod" id="recipientcod">
 
-                            <h4 class="modal-title" id="myModalLabel">Você realmente deseja remover essa disciplina do professor(a)?</h4><p>
-                                <div class="form-group">  
-
-                                    <input class="form-control" required="" name="disc" id="recipientdisc" disabled>                                                                  
-                                    <input class="form-control" required="" name="nome" id="recipientnome" disabled>
-                                    
-                                </div>
-
+                            <h4 class="modal-title" id="myModalLabel">Você realmente deseja remover esta aula?</h4><p>
+                                
                                 <div class="modal-footer">
                                     <button type="submit" class="btn btn btn-outline btn-primary">Sim</button>
                                     <button type="button" class="btn btn btn-outline btn-danger" data-dismiss="modal">Não</button>                                    
@@ -414,7 +497,8 @@
         });
 
     });
-    </script> 
+    </script>
+    
 
     <script type="text/javascript">
 
@@ -422,14 +506,12 @@
       var button = $(event.relatedTarget) // Button that triggered the modal
       var recipient = button.data('whatever') // Extract info from data-* attributes
       var recipientcod = button.data('whatevercod')
-      var recipientnome = button.data('whatevernome')
-      var recipientdisc = button.data('whateverdisc')
+
       // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
       // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
       var modal = $(this)      
       modal.find('#recipientcod').val(recipientcod)
-      modal.find('#recipientnome').val(recipientnome)
-      modal.find('#recipientdisc').val(recipientdisc)
+
     });
 
     </script>

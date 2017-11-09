@@ -38,6 +38,9 @@
     <!-- Custom Fonts -->
     <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
+    <!-- Footer Customizado -->
+    <link rel="stylesheet" href="../dist/css/demo.css">
+    <link rel="stylesheet" href="../dist/css/footer-distributed-with-address-and-phones.css">
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -56,7 +59,12 @@
     .panel-heading{
         border-radius: 0px;
     }
-
+    .btn {
+        border-radius: 0px;
+    }
+    .form-control {
+        border-radius: 0px;
+    }
     .panel{
         border-radius: 0px;
     }
@@ -66,24 +74,23 @@
     .page-header{
         color: #b9b9b9;
     }
-    .btn {
-        border-radius: 0px;
-    }
-    .form-control {
-        border-radius: 0px;
-    }
-    .panel-default>.panel-heading {
-        background-color: #e7e7e7;
-    }
     .page-header {
         border-bottom: 1px solid #999;
     }
-     
-    a.nounderline:link 
-    { 
-     text-decoration:none; 
-    } 
-    </style> 
+    .footer-distributed {
+        margin-top: 0px;
+        background-color: #e7e7e7;
+    }
+    .footer-distributed .footer-company-name {
+        color: #555;
+    }
+    .sidebar ul li a.active {
+        background-color: #e7e7e7;
+    }
+    .sidebar .sidebar-search {
+        padding: 0px;
+    }
+    </style>
 
 </head>
 
@@ -274,11 +281,6 @@
 
                 <div class="panel-body">
 
-                    <!-- Button trigger modal -->
-                    <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#info">
-                        Launch Demo Modal
-                    </button>
-
                     <!-- Modal -->
                     <div class="modal fade" id="info" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
@@ -325,6 +327,41 @@
 
     </div>
     <!-- /#wrapper -->
+
+    <footer class="footer-distributed">
+
+                <div class="footer-left">
+                </div>
+
+                <div class="footer-center">
+
+                    <div>
+                        <span>Av. Prestes Maia, 1764 </span>Jd. Ipanema, Araçatuba/SP
+                    </div>
+                    <div>
+                        (18) 3625-9917
+                    </div>
+
+                    <div>
+                    
+                        <a href="mailto:support@company.com">falecom@fatecaracatuba.edu.br</a>
+                    </div>
+
+                        <a href="http://fatecaracatuba.edu.br/site/"><i class="fa fa-facebook"></i></a>
+                        <a href="https://github.com/edsonrrls/Grade-Horarios-Virtual"><i class="fa fa-github"></i></a>
+                </div>
+
+                <div class="footer-right">
+
+                    <img src="fatec.png" width="200px">
+
+                    <p class="footer-company-name">Grade Horários Digital &copy; 2017
+                    <br>Edson Asêncio Leal
+                    <br>Lucilena de Lima</p>
+                    
+                </div>
+
+            </footer>
 
     <!-- jQuery -->
     <script src="../vendor/jquery/jquery.min.js"></script>
